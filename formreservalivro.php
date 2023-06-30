@@ -45,14 +45,14 @@
                 <option>Selecione</option>
                 <?php
                 
-                $sql = "select * from aluno;";
+                $sql = "select * from aluno";
 
                 $res = mysqli_query($conexao, $sql);
                 $linhas = mysqli_num_rows($res);
                 
                 for ($i = 0; $i < $linhas; $i++){
                     $aluno = mysqli_fetch_array($res);
-                    echo "<option value = ".$aluno['matricula'].">";
+                    echo "<option name='matri' value = ".$aluno['matricula'].">";
                     echo $aluno['nome'];
                     echo "</option><br>";
                 }
@@ -62,36 +62,48 @@
         <br>            
         Data de Entrega:
         <input name="dat_entr" type="date"><br> 
-        <br>    
+        <br>  
+        
+        <table id="tlivro" border="1">
+            <th colspan="3">Livros</th>
+            <tr>
+                <th></th>
+                <th>Título</th>
+                <th>Autor</th>
+            </tr>
+        
+
         <?php   
             $sql = "select titulo, livro.id, nome from livro inner join area on livro.id_area = area.id where status = 0 order by titulo asc;";
-            echo "Livros: <br>";
+            
             $res = mysqli_query($conexao, $sql);
             $linhas = mysqli_num_rows($res);
             
             while ($resv = mysqli_fetch_array($res)){
-                
-                echo "<input name='book' type='checkbox' >". $resv['id']." - ". $resv['titulo'] . " - ". $resv['nome'] . "<br>";
-                
+                echo "<tr><td><input name='idl' type='hidden' value='".$resv['id']."'>";
+                echo "<input name='book' type='checkbox'></td><td>". $resv['titulo'] . "</td><td>". $resv['nome'] . "</td>";   
             }
-    
         ?>
+        </table>
         <input name="reserv" type="submit" id="reserv" value="Reservar">
         <input name="limp" type="reset" id="limp" value="Cancelar">
     </form>
     <?php
         if (isset($_POST['reserv'])){
-            // notificação de livro reservado com sucesso 
             
                                                 
             $dt_entr = $_POST['dat_entr'];                                       
-            $nome_aluno = $_POST['select_aluno'];     
-            $nome_livro = $_POST['book'];
+            $matricula = $aluno['matricula'];     
+            $idl = $_POST['idl'];
     
-            /*$sql = "insert into reserva (data_entrega, data_retirada, status, matricula, id_livro)
-             values ('$dt_entr', ' curdate()', '1', '".$aluno['matricula']."', '".$resv['id']."')";
+            $sql1 = "update livro set status = 1 where id = $idl";
+            $sql2 = "insert into reserva (id_livro, matricula, status, data_entrega, data_retirada) 
+            values ('$idl','$matricula', 1, '$dt_entr', curdate())";
+            
+            // 
+            $res = mysqli_query($conexao, $sql1, $sql2);  
 
-            $res = mysqli_query($conexao, $sql); */ 
+            header('Location: formreservalivro.php');
 
 
 
@@ -99,7 +111,7 @@
              
             $res = mysqli_query($conexao, $sql);  
 
-            /*header('Location: formreservalivro.php');*/
+            header('Location: formreservalivro.php');
         }
 
     ?>
